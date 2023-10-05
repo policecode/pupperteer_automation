@@ -62,7 +62,12 @@ router.post('/crawl_tool_story', async (req, res) => {
                 //  Loại bỏ quảng cáo khi tải về
                 contentHTML = contentHTML.replace(/<div.*?\/div>/g, '');
                 contentHTML = contentHTML.replace(/<script.*?\/script>/g, '');
-                
+                // Xử lý trường hợp trang truyện có hình ảnh
+                let rexgex = /<img.*?>/g;
+                myArray = contentHTML.match(rexgex);
+                if (myArray) {
+                    console.log('Chương ' + chapter.chapterText + ' có hình ảnh');
+                }
                 /**
                  * Xử lý việc ghi file
                  */
