@@ -1,5 +1,7 @@
 const RandomString = require('./app/util/randomString');
-
+const fs = require('fs');
+const https = require('https');
+const download = require('image-downloader');
 // const date = new Date();
 // const timeStamp = Math.floor(Math.random() * (975665154348 - 318247514507)) + 318247514507;
 // date.setTime(timeStamp);
@@ -102,8 +104,20 @@ const RandomString = require('./app/util/randomString');
 //     console.log(err);
 // });
 
-const string = ``
+const string = `<div class="content_p fs-16 content_p_al">
+<p class="noi_dung_online"> <img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-0.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-1.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-2.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-3.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-4.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-5.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-6.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-7.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-8.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-9.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-10.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-11.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-12.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-13.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-14.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-15.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-16.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-17.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-18.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-19.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-20.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-21.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-22.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-23.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-24.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-25.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-26.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-27.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-28.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-29.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-30.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-31.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-32.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-33.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-34.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-35.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-36.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-37.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-38.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-39.jpg" class="truyen-tranh" alt=""> </p>
+</div>`
+
 let rexgex = /<img.*?>/g;
 // var myArray = /<img.*?>/g.exec(string);
-myArray = string.match(rexgex);
-console.log(myArray);
+arrImg = string.match(rexgex);
+for (let i = 0; i < arrImg.length; i++) {
+    const resultMatch = /src="(.*?)"/g.exec(arrImg[i]);
+    const urlImage = resultMatch[1];
+    const arrSplitLink = urlImage.split('.');
+    const tmpFormat = arrSplitLink[arrSplitLink.length - 1];
+    
+    https.get(urlImage, (res) => {
+        res.pipe(fs.createWriteStream('./public/download/' + (i + 1) + '.' + tmpFormat));
+    });
+}

@@ -85,6 +85,7 @@ class HandlePage {
     static async setKeyboard(page, keyInput) {
         await page.keyboard.press(keyInput)
     }
+
 }
 
 module.exports = HandlePage;
