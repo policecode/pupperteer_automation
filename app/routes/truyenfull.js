@@ -183,7 +183,7 @@ router.post('/crawl_tool_story', async (req, res) => {
                     index++;
                     break;
                 } catch (error) {
-                    console.log('Lần ' + i + ': ' + error);
+                    console.log('Lỗi đường link lần ' + i + ' '+chapter.url+ ': ' + error);
                 }
             }
             
@@ -196,6 +196,7 @@ router.post('/crawl_tool_story', async (req, res) => {
             return number;
         }
     } 
+    // Chạy các luồng
     let number = 0;
     while (number < listTruyen.length) {
         if (queueThread.length < thread && !queueThread.includes(number)) {
