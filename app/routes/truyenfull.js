@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const https = require('https');
 var router = express.Router();
 // Action
 const HandlePage = require(__path_action + 'HandlePage');
@@ -10,13 +11,19 @@ const Functions = require(__path_util + 'functions');
 router.post('/crawl_tool_story', async (req, res) => {
     const {link}= req.body;
     let queueThread = [];
-    let thread = 3;
+    let thread = req.body.thread?req.body.thread :1;
     /**
      * Lấy bắt đầu từ trang danh sách các truyện
      */
     const browserLocal = await __Start_Browser();
     let listTruyen = [];
     try {
+        if (!fs.existsSync( __base + 'public/')) {
+            fs.mkdirSync(__base + 'public/')
+         }
+         if (!fs.existsSync( __base + 'public/download/')) {
+             fs.mkdirSync(__base + 'public/download/')
+         }
         let pageLocal = await browserLocal.newPage();
         await HandlePage.gotoUrl(pageLocal, link); 
         const elListTruyen = await pageLocal.waitForSelector('.container .col-truyen-main .list.list-truyen', { visible: true });
@@ -64,13 +71,8 @@ router.post('/crawl_tool_story', async (req, res) => {
                 return str;
            });
     
+           
             const dirStoryName = __base + 'public/download/'+RandomString.changeSlug(titleStory)+'/';
-            if (!fs.existsSync( __base + 'public/')) {
-                fs.mkdirSync(__base + 'public/')
-            }
-            if (!fs.existsSync( __base + 'public/download/')) {
-                fs.mkdirSync(__base + 'public/download/')
-            }
             if (!fs.existsSync( dirStoryName)) {
                 fs.mkdirSync(dirStoryName)
             }
@@ -88,11 +90,10 @@ router.post('/crawl_tool_story', async (req, res) => {
                 fs.writeFileSync(dirStoryName + 'category.txt', category, 'utf-8');
             }
     
+            /**
+             * Lấy danh sách các chương truyện
+             */
             while (true) {
-    
-                /**
-                 * Lấy danh sách các chương truyện
-                 */
                 const ChapterEl = await page.waitForSelector('#list-chapter', { visible: true });
                 const list = await ChapterEl.evaluate(el => {
                     let listTmp = [];
@@ -156,14 +157,17 @@ router.post('/crawl_tool_story', async (req, res) => {
                     let rexgex = /<img.*?>/g;
                     let arrImg = contentHTML.match(rexgex);
                     if (arrImg) {
-                        if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
-                            fs.writeFileSync('' + 'text.txt', contentHTML, 'utf-8');
+                        
+                        const dirImage = dirChapterFolder + 'image/';
+                        if (!fs.existsSync(dirImage)) {
+                            fs.mkdirSync(dirImage)
                         }
                         for (let i = 0; i < arrImg.length; i++) {
-                            const dirImage = dirChapterFolder + 'image/'
                             try {
                                 const resultMatch = /src="(.*?)"/g.exec(arrImg[i]);
                                 const urlImage = resultMatch[1];
+                                // Loại bỏ đường dẫn ảnh cũ đổi thành {{image-i}}; i tương ứng với tên ảnh trong folder image
+                                contentHTML = contentHTML.replace(urlImage, '{{image-'+(i + 1)+'}}');
                                 const arrSplitLink = urlImage.split('.');
                                 const tmpFormat = arrSplitLink[arrSplitLink.length - 1];
                                 https.get(urlImage, (res) => {
@@ -172,6 +176,9 @@ router.post('/crawl_tool_story', async (req, res) => {
                             } catch (error) {
                                 console.log('Lỗi lưu ảnh ' + titleStory + ' chapter-'+index + ' :' + error );
                             }
+                        }
+                        if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
+                            fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
                         }
                     } else {
                         if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
@@ -229,30 +236,71 @@ router.post('/test', async (req, res) => {
 
     try {
         let page = await browser.newPage();
-
-        /**
-         * Lấy bắt đầu từ trang danh sách các truyện
-         */
         await HandlePage.gotoUrl(page, link); 
-        const elListTruyen = await page.waitForSelector('.container .col-truyen-main .list.list-truyen', { visible: true });
-        const listTruyen = await elListTruyen.evaluate(el => {
-            const listElement= el.querySelectorAll('h3.truyen-title a');
-            let arr = [];
-            listElement.forEach(a => {
-                arr.push(a.href);
-            });
-            return arr;
-         });
-        //  console.log(listTruyen);
+        let contentPage = await page.waitForSelector('#chapter-big-container', { visible: true });
+        let contentHTML = await contentPage.evaluate(el => {
+            const content = el.querySelector('.chapter-c').innerHTML;
+            return content;
+        });
+        //  Loại bỏ quảng cáo khi tải về
+        contentHTML = contentHTML.replace(/<div.*?\/div>/g, '');
+        contentHTML = contentHTML.replace(/<script.*?\/script>/g, '');
+        
+        /**
+         * Xử lý việc ghi file
+         */
+        const dirStoryName = __base + 'public/download/'+RandomString.changeSlug('truyện để test')+'/';
+        if (!fs.existsSync(dirStoryName)) {
+            fs.mkdirSync(dirStoryName)
+        }
+        // Thư mục chương
+        const dirChapterFolder = dirStoryName + 'chapter-1/';
+        if (!fs.existsSync(dirChapterFolder)) {
+            fs.mkdirSync(dirChapterFolder)
+        }
+        
+        // Xử lý trường hợp trang truyện có hình ảnh hoặc có nội dung chữ
+        let rexgex = /<img.*?>/g;
+        let arrImg = contentHTML.match(rexgex);
+        if (arrImg) {
+            
+            const dirImage = dirChapterFolder + 'image/';
+            if (!fs.existsSync(dirImage)) {
+                fs.mkdirSync(dirImage)
+            }
+            for (let i = 0; i < arrImg.length; i++) {
+                try {
+                    const resultMatch = /src="(.*?)"/g.exec(arrImg[i]);
+                    const urlImage = resultMatch[1];
+                    contentHTML = contentHTML.replace(urlImage, '{{image-'+(i + 1)+'}}');
+                    const arrSplitLink = urlImage.split('.');
+                    const tmpFormat = arrSplitLink[arrSplitLink.length - 1];
+                    https.get(urlImage, (res) => {
+                        res.pipe(fs.createWriteStream(dirImage + (i + 1) + '.' + tmpFormat));
+                    });
+                } catch (error) {
+                    console.log('Lỗi lưu ảnh ' + error);
+                }
+            }
+            if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
+                fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
+            }
+        } else {
+            if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
+                fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
+            }
+
+        }
+        await page.waitForTimeout(1000);
         await HandlePage.closeBrowser(browser);
-        return res.send(listTruyen);
 
     } catch (error) {
+        console.log('Lỗi đường link lần ' + error);
         await HandlePage.closeBrowser(browser);
-        return res.send("Lỗi ở /api/v1/truỳenull/crawl_tool_story: " + error);
+
     }
 
     // await HandlePage.closeBrowser(browser);
-    // return res.send('Tải truyện thành công');
+    return res.send('Tải truyện thành công');
 })
 module.exports = router;

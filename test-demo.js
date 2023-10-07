@@ -1,7 +1,6 @@
 const RandomString = require('./app/util/randomString');
 const fs = require('fs');
 const https = require('https');
-const download = require('image-downloader');
 // const date = new Date();
 // const timeStamp = Math.floor(Math.random() * (975665154348 - 318247514507)) + 318247514507;
 // date.setTime(timeStamp);
