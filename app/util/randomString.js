@@ -106,7 +106,7 @@ class RandomString {
         str = str.toLowerCase();
         // Remove punctuations
         // Bỏ dấu câu, kí tự đặc biệt
-        str = str.replace(/\s|!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g,"-");
+        str = str.replace(/\s|!|@|%|\^|\*|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g,"-");
         return str;
     }
 }

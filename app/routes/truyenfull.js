@@ -9,36 +9,37 @@ const RandomString = require(__path_util + 'randomString');
 const Functions = require(__path_util + 'functions');
 
 router.post('/crawl_tool_story', async (req, res) => {
-    const {link}= req.body;
+    const {link, action}= req.body;
     let queueThread = [];
     let thread = req.body.thread?req.body.thread :1;
     /**
      * Lấy bắt đầu từ trang danh sách các truyện
+     * - action: one - lấy theo link một bộ truyện cụ thể; mutiple - Lấy theo danh sách liệt kê các bộ truyện
      */
-    const browserLocal = await __Start_Browser();
     let listTruyen = [];
-    try {
-        if (!fs.existsSync( __base + 'public/')) {
-            fs.mkdirSync(__base + 'public/')
-         }
-         if (!fs.existsSync( __base + 'public/download/')) {
-             fs.mkdirSync(__base + 'public/download/')
-         }
-        let pageLocal = await browserLocal.newPage();
-        await HandlePage.gotoUrl(pageLocal, link); 
-        const elListTruyen = await pageLocal.waitForSelector('.container .col-truyen-main .list.list-truyen', { visible: true });
-        listTruyen = await elListTruyen.evaluate(el => {
-            const listElement= el.querySelectorAll('h3.truyen-title a');
-            let arr = [];
-            listElement.forEach(a => {
-                arr.push(a.href);
-            });
-            return arr;
-         });
-         await HandlePage.closeBrowser(browserLocal);
-    } catch (error) {
-        await HandlePage.closeBrowser(browserLocal);
-        return res.send("Lỗi ở /api/v1/truỳenull/crawl_tool_story: " + error);
+    if (action == 'one') {
+        listTruyen.push(link);
+    } else if (action == 'mutiple') {
+        const browserLocal = await __Start_Browser();
+        try {
+            let pageLocal = await browserLocal.newPage();
+            await HandlePage.gotoUrl(pageLocal, link); 
+            const elListTruyen = await pageLocal.waitForSelector('.container .col-truyen-main .list.list-truyen', { visible: true });
+            listTruyen = await elListTruyen.evaluate(el => {
+                const listElement= el.querySelectorAll('h3.truyen-title a');
+                let arr = [];
+                listElement.forEach(a => {
+                    arr.push(a.href);
+                });
+                return arr;
+             });
+             await HandlePage.closeBrowser(browserLocal);
+        } catch (error) {
+            await HandlePage.closeBrowser(browserLocal);
+            return res.send("Lỗi ở /api/v1/truỳenull/crawl_tool_story: " + error);
+        }
+    } else {
+        listTruyen.push(link);
     }
 
 
@@ -72,24 +73,13 @@ router.post('/crawl_tool_story', async (req, res) => {
            });
     
            
+           // File thông tin truyện
             const dirStoryName = __base + 'public/download/'+RandomString.changeSlug(titleStory)+'/';
-            if (!fs.existsSync( dirStoryName)) {
-                fs.mkdirSync(dirStoryName)
-            }
-            // File thông tin truyện
-            if (!fs.existsSync( dirStoryName + 'title.txt')) {
-                fs.writeFileSync(dirStoryName + 'title.txt', titleStory, 'utf-8');
-            }
-            if (!fs.existsSync( dirStoryName + 'description.txt')) {
-                fs.writeFileSync(dirStoryName + 'description.txt', description, 'utf-8');
-            }
-            if (!fs.existsSync( dirStoryName + 'author.txt')) {
-                fs.writeFileSync(dirStoryName + 'author.txt', author, 'utf-8');
-            }
-            if (!fs.existsSync( dirStoryName + 'category.txt')) {
-                fs.writeFileSync(dirStoryName + 'category.txt', category, 'utf-8');
-            }
-    
+            Functions.createFolderAnfFile(dirStoryName, 'title.txt', titleStory);
+            Functions.createFolderAnfFile(dirStoryName, 'description.txt', description);
+            Functions.createFolderAnfFile(dirStoryName, 'author.txt', author);
+            Functions.createFolderAnfFile(dirStoryName, 'category.txt', category);
+           
             /**
              * Lấy danh sách các chương truyện
              */
@@ -146,22 +136,13 @@ router.post('/crawl_tool_story', async (req, res) => {
                     
                     // Thư mục chương
                     const dirChapterFolder = dirStoryName + 'chapter-'+index +'/';
-                    if (!fs.existsSync(dirChapterFolder)) {
-                        fs.mkdirSync(dirChapterFolder)
-                    }
                     // tiêu đề chương
-                    if (!fs.existsSync(dirChapterFolder + 'title.txt')) {
-                        fs.writeFileSync(dirChapterFolder + 'title.txt', chapter.chapterText, 'utf-8');
-                    }
+                    Functions.createFolderAnfFile(dirChapterFolder, 'title.txt', chapter.chapterText);
                     // Xử lý trường hợp trang truyện có hình ảnh hoặc có nội dung chữ
                     let rexgex = /<img.*?>/g;
                     let arrImg = contentHTML.match(rexgex);
                     if (arrImg) {
-                        
                         const dirImage = dirChapterFolder + 'image/';
-                        if (!fs.existsSync(dirImage)) {
-                            fs.mkdirSync(dirImage)
-                        }
                         for (let i = 0; i < arrImg.length; i++) {
                             try {
                                 const resultMatch = /src="(.*?)"/g.exec(arrImg[i]);
@@ -170,22 +151,16 @@ router.post('/crawl_tool_story', async (req, res) => {
                                 contentHTML = contentHTML.replace(urlImage, '{{image-'+(i + 1)+'}}');
                                 const arrSplitLink = urlImage.split('.');
                                 const tmpFormat = arrSplitLink[arrSplitLink.length - 1];
-                                https.get(urlImage, (res) => {
-                                    res.pipe(fs.createWriteStream(dirImage + (i + 1) + '.' + tmpFormat));
-                                });
+                                Functions.downloadFile(urlImage, dirImage, (i + 1) + '.' + tmpFormat);
+                              
                             } catch (error) {
                                 console.log('Lỗi lưu ảnh ' + titleStory + ' chapter-'+index + ' :' + error );
                             }
                         }
-                        if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
-                            fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
-                        }
-                    } else {
-                        if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
-                            fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
-                        }
-    
+                      
                     }
+                    Functions.createFolderAnfFile(dirChapterFolder, 'text.txt', contentHTML);
+
                     await page.waitForTimeout(1000);
                     index++;
                     break;
@@ -203,6 +178,7 @@ router.post('/crawl_tool_story', async (req, res) => {
             return number;
         }
     } 
+
     // Chạy các luồng
     let number = 0;
     while (number < listTruyen.length) {
