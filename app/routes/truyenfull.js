@@ -1,6 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
+const axios = require('axios');
+const path = require('path');
 var router = express.Router();
 // Action
 const HandlePage = require(__path_action + 'HandlePage');
@@ -205,78 +207,103 @@ router.post('/crawl_tool_story', async (req, res) => {
     // await HandlePage.closeBrowser(browser);
     return res.send('Tải truyện thành công');
 });
-
-router.post('/test', async (req, res) => {
-    const browser = await __Start_Browser();
-    const {link}= req.body;
-
+router.get('/path_folder_truyen', async (req, res) => {
+    // Lấy danh sách các thư mục đã download về
     try {
-        let page = await browser.newPage();
-        await HandlePage.gotoUrl(page, link); 
-        let contentPage = await page.waitForSelector('#chapter-big-container', { visible: true });
-        let contentHTML = await contentPage.evaluate(el => {
-            const content = el.querySelector('.chapter-c').innerHTML;
-            return content;
+        const listPath = [];
+        const pathFolder = path.join(__base+'public/download/');
+        const listDirStory = fs.readdirSync(pathFolder);
+        listDirStory.forEach(dir => {
+            const pathStory = path.join(pathFolder, dir);
+            const direntStory = fs.statSync(pathStory);
+            if (direntStory.isDirectory()) {
+                const pathChildTitle = path.join(pathStory, 'title.txt');
+                const readFileChild = fs.readFileSync(pathChildTitle, {encoding: 'utf-8'});
+                listPath.push({
+                    folder: dir,
+                    name: readFileChild
+                })
+            }
         });
-        //  Loại bỏ quảng cáo khi tải về
-        contentHTML = contentHTML.replace(/<div.*?\/div>/g, '');
-        contentHTML = contentHTML.replace(/<script.*?\/script>/g, '');
-        
-        /**
-         * Xử lý việc ghi file
-         */
-        const dirStoryName = __base + 'public/download/'+RandomString.changeSlug('truyện để test')+'/';
-        if (!fs.existsSync(dirStoryName)) {
-            fs.mkdirSync(dirStoryName)
-        }
-        // Thư mục chương
-        const dirChapterFolder = dirStoryName + 'chapter-1/';
-        if (!fs.existsSync(dirChapterFolder)) {
-            fs.mkdirSync(dirChapterFolder)
-        }
-        
-        // Xử lý trường hợp trang truyện có hình ảnh hoặc có nội dung chữ
-        let rexgex = /<img.*?>/g;
-        let arrImg = contentHTML.match(rexgex);
-        if (arrImg) {
-            
-            const dirImage = dirChapterFolder + 'image/';
-            if (!fs.existsSync(dirImage)) {
-                fs.mkdirSync(dirImage)
-            }
-            for (let i = 0; i < arrImg.length; i++) {
-                try {
-                    const resultMatch = /src="(.*?)"/g.exec(arrImg[i]);
-                    const urlImage = resultMatch[1];
-                    contentHTML = contentHTML.replace(urlImage, '{{image-'+(i + 1)+'}}');
-                    const arrSplitLink = urlImage.split('.');
-                    const tmpFormat = arrSplitLink[arrSplitLink.length - 1];
-                    https.get(urlImage, (res) => {
-                        res.pipe(fs.createWriteStream(dirImage + (i + 1) + '.' + tmpFormat));
-                    });
-                } catch (error) {
-                    console.log('Lỗi lưu ảnh ' + error);
-                }
-            }
-            if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
-                fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
-            }
-        } else {
-            if (!fs.existsSync(dirChapterFolder + 'text.txt')) {
-                fs.writeFileSync(dirChapterFolder + 'text.txt', contentHTML, 'utf-8');
-            }
-
-        }
-        await page.waitForTimeout(1000);
-        await HandlePage.closeBrowser(browser);
-
+        return res.status(200).send(listPath);
     } catch (error) {
-        console.log('Lỗi đường link lần ' + error);
-        await HandlePage.closeBrowser(browser);
+        return res.send('Lỗi: ' + error);
+    }
+});
+router.post('/handle_duplicate_file', async (req, res) => {
+    const {list_path}= req.body;
+    let listStory = [];
+    let count = 0;
+    try {
+        // Vào danh sách các folder cần thực hiện thao tác
+        if (list_path.length > 0) {
+            list_path.forEach(dir => {
+                // Lấy danh sách các dir con
+                const pathFolder = path.join(__base+'public/download/', dir);
+                const listDirChapter = fs.readdirSync(pathFolder);
+                // Làm thao tác kiểm tra các folder con, tìm những folder có nội dung giống nhau
+                listDirChapter.forEach(dirChild => {
+                    const pathChild = path.join(pathFolder, dirChild);
+                    // Lấy trạng thái của dir
+                    const dirrentChild = fs.statSync(pathChild);
+                    if (dirrentChild.isDirectory()) {
+                        // Vào các folder con là các chương, kiểm tra phần title.txt xem có bị trùng lặp chương không
+                        const pathTitleChapter = path.join(pathChild, 'title.txt');
+                        const readFileTitle = fs.readFileSync(pathTitleChapter, {encoding: 'utf-8'});
+                        const indexChapter = listStory.indexOf(readFileTitle)
+                        if (indexChapter>= 0) {
+                            // Nếu có chương trùng thì xóa đi
+                            fs.rmSync(pathChild, {recursive: true});
+                            count++;
+                            console.log(`đã xóa folder ${dirChild} - parent: ${dir}`);
+                        } else {
+                            listStory.push(readFileTitle)
+                        }
+                    }
+                });
+            });
+        }
 
+        return res.send(`Đã xóa ${count} thư mục bị trùng lặp`);
+    } catch (error) {
+        return res.send('Lỗi: ' + error);
+    }
+    // text-1.txt
+});
+
+router.post('demo_call_api', async (req, res) => {
+    try {
+        // const {name, description, age}= req.body;
+        // const dir = path.join(__base+ 'public/', );
+        // const content = `Họ tên: ${name} \n
+        //                 Tuổi: ${age} \n
+        //                 Giới thiệu bản thân: ${description}`
+        // Functions.createFolderAnfFile(dir, 'personal.txt', content);
+        return res.send({message: 'Thêm mới thành công'});
+    } catch (error) {
+        return res.send('Lỗi: ' + error);
     }
 
-    // await HandlePage.closeBrowser(browser);
-    return res.send('Tải truyện thành công');
+})
+router.post('/test', async (req, res) => {
+    try {
+        const respone = await axios({
+            method: 'post',
+            url: 'http://localhost:8002/api/v1/truyenfull/demo_call_api',
+            data: {
+                name: 'Nguyễn Hoàng Đạt',
+                age: 29,
+                description: 'ádwqregdfxgzdfgartarter'
+            }
+          });
+        //   const respone = await axios({
+        //     method: 'get',
+        //     url: 'http://localhost:8002/api/v1/truyenfull/path_folder_truyen',
+        //   })
+        // console.log(respone);
+        return res.send(respone.data);
+    } catch (error) {
+        return res.send('Lỗi: ' + error);
+    }
 })
 module.exports = router;
