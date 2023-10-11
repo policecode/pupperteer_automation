@@ -3,12 +3,16 @@ const fs = require('fs');
 const https = require('https');
 const axios = require('axios');
 const path = require('path');
+const FormData = require('form-data');
 var router = express.Router();
 // Action
 const HandlePage = require(__path_action + 'HandlePage');
 const HandleTruyenfull = require(__path_action + 'HandleTruyenfull');
 const RandomString = require(__path_util + 'randomString');
 const Functions = require(__path_util + 'functions');
+const {upload} = require(__path_util + 'upload');
+
+
 
 router.post('/crawl_tool_story', async (req, res) => {
     const {link, action}= req.body;
@@ -232,12 +236,12 @@ router.get('/path_folder_truyen', async (req, res) => {
 });
 router.post('/handle_duplicate_file', async (req, res) => {
     const {list_path}= req.body;
-    let listStory = [];
     let count = 0;
     try {
         // Vào danh sách các folder cần thực hiện thao tác
         if (list_path.length > 0) {
             list_path.forEach(dir => {
+                let listStory = [];
                 // Lấy danh sách các dir con
                 const pathFolder = path.join(__base+'public/download/', dir);
                 const listDirChapter = fs.readdirSync(pathFolder);
@@ -271,14 +275,9 @@ router.post('/handle_duplicate_file', async (req, res) => {
     // text-1.txt
 });
 
-router.post('demo_call_api', async (req, res) => {
+router.post('/demo_call_api', async (req, res) => {
     try {
-        // const {name, description, age}= req.body;
-        // const dir = path.join(__base+ 'public/', );
-        // const content = `Họ tên: ${name} \n
-        //                 Tuổi: ${age} \n
-        //                 Giới thiệu bản thân: ${description}`
-        // Functions.createFolderAnfFile(dir, 'personal.txt', content);
+        upload.single('image')
         return res.send({message: 'Thêm mới thành công'});
     } catch (error) {
         return res.send('Lỗi: ' + error);
@@ -287,20 +286,21 @@ router.post('demo_call_api', async (req, res) => {
 })
 router.post('/test', async (req, res) => {
     try {
+        const form = new FormData();
+        const pathImage = path.join(__base+'public/image', 'pngtree-beauty-logo-design-png-image_6568470.png');
+        form.append('image', fs.createReadStream(pathImage));
         const respone = await axios({
+            baseURL: 'http://localhost:8002',
+            url: '/api/v1/truyenfull/demo_call_api',
             method: 'post',
-            url: 'http://localhost:8002/api/v1/truyenfull/demo_call_api',
-            data: {
-                name: 'Nguyễn Hoàng Đạt',
-                age: 29,
-                description: 'ádwqregdfxgzdfgartarter'
-            }
+            headers: form.getHeaders(),
+            data: form
           });
         //   const respone = await axios({
         //     method: 'get',
         //     url: 'http://localhost:8002/api/v1/truyenfull/path_folder_truyen',
         //   })
-        // console.log(respone);
+        // console.log(axios.isCancel('something'));
         return res.send(respone.data);
     } catch (error) {
         return res.send('Lỗi: ' + error);

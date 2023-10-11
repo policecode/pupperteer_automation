@@ -1,10 +1,10 @@
-var createError = require('http-errors');
 var express = require('express');
 const cors = require('cors');
+// const bodyParser = require('body-parser');
 
 const app = express();
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true}));
 global.__base = __dirname + '/';
 global.__path_app = __base + 'app/';
 global.__path_json = __path_app + 'db-json/';
@@ -27,6 +27,8 @@ global.__Gpm_Browser = require(__path_browser + 'initBrowser');
 const systemConfig = require(__path_configs + 'system');
 // Local variable
 app.locals.systemConfig = systemConfig;
+
+
 
 app.use(cors());
 // Setup Router
