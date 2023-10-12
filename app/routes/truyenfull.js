@@ -221,17 +221,24 @@ router.get('/path_folder_truyen', async (req, res) => {
             const pathStory = path.join(pathFolder, dir);
             const direntStory = fs.statSync(pathStory);
             if (direntStory.isDirectory()) {
+                let totalChapter = Functions.totalFolder(pathStory);
                 const pathChildTitle = path.join(pathStory, 'title.txt');
                 const readFileChild = fs.readFileSync(pathChildTitle, {encoding: 'utf-8'});
                 listPath.push({
                     folder: dir,
-                    name: readFileChild
+                    name: readFileChild,
+                    total: totalChapter
                 })
             }
         });
-        return res.status(200).send(listPath);
-    } catch (error) {
-        return res.send('Lỗi: ' + error);
+        return res.status(200).send({records: listPath});
+    } catch (e) {
+        console.log('Lỗi getListFolderStory(): ' + e);
+        return res.status(400).send({
+            code: "9999",
+            message: "FAILED",
+            reason: e.message
+        });
     }
 });
 router.post('/handle_duplicate_file', async (req, res) => {

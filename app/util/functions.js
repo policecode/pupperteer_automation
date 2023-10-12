@@ -1,6 +1,6 @@
 const fs = require('fs');
 const https = require('https');
-
+const path = require('path');
 const sleep = (ms) =>  new Promise((resolve, reject) => {
         setTimeout(resolve, ms);
     });
@@ -54,4 +54,20 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
         res.pipe(fs.createWriteStream(__pathFolder + __fileName));
     });
   }
-module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile};
+
+  const totalFolder = (__path_folder_parent) => {
+    try {
+      const listDir = fs.readdirSync(__path_folder_parent);
+      let total = 0;
+      listDir.forEach(dir => {
+        const pathFolderChild = path.join(__path_folder_parent, dir);
+        const dirent = fs.statSync(pathFolderChild);
+        if (dirent.isDirectory()) total++;
+      });
+      return total;
+    } catch (error) {
+      console.log('FileHelper class totalFolder(): ' +error);
+      return 0;
+    }
+  }
+module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder};
