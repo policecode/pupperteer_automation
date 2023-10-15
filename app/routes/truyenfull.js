@@ -282,15 +282,91 @@ router.post('/handle_duplicate_file', async (req, res) => {
     // text-1.txt
 });
 
-router.post('/demo_call_api', async (req, res) => {
+router.post('/handle_upload_story', async (req, res) => {
+    const {path_folder}= req.body;
+    const form = new FormData(); //Gửi dữ liệu tạo truyện mới
+    // API upload: http://localhost/wordpress/web_truyen/wp-json/v1/import_story
+    // API upload Chapter: http://localhost/wordpress/web_truyen/wp-json/v1/import_story_chapter
+    let count = 0;
     try {
-        upload.single('image')
-        return res.send({message: 'Thêm mới thành công'});
+        // Vào danh sách các folder cần thực hiện thao tác
+        if (path_folder) {
+            // Đưa thông tin truyền vào form dữ liệu
+            const pathFolder = path.join(__base+'public/download/', path_folder);
+            
+            const author = Functions.readFile(pathFolder + '/author.txt');
+            const category = Functions.readFile(pathFolder + '/category.txt');
+            const title = Functions.readFile(pathFolder + '/title.txt').toLowerCase();
+            const description = Functions.readFile(pathFolder + '/description.txt');
+            const status = Functions.readFile(pathFolder + '/status.txt');
+            const translation = Functions.readFile(pathFolder + '/translation.txt');
+            const illustration = Functions.readFile(pathFolder + '/illustration.txt');
+            form.append('author', author);
+            const listCategories = category.split('\n');
+            for (let t = 0; t < listCategories.length; t++) {
+                if (listCategories[t]) {
+                    form.append('category[]', listCategories[t])
+                }
+            }
+            // form.append('category', category.split('\n'));
+            form.append('title', title);
+            form.append('status', status);
+            form.append('description', description);
+            form.append('translation', translation);
+            form.append('illustration', illustration);
+            if (fs.existsSync(path.join(pathFolder, 'avatar.jpg'))) {
+                form.append('avatar', fs.createReadStream(path.join(pathFolder, 'avatar.jpg')));
+            }
+            const respone = await axios({
+                url: 'http://localhost/wordpress/web_truyen/wp-json/v1/import_story',
+                method: 'post',
+                headers: form.getHeaders(),
+                data: form
+            });
+            console.log(respone.data.message);
+
+            // Lấy danh sách các dir con
+            const listDirChapter = Functions.getFolderChapter(pathFolder);
+            // Làm thao tác kiểm tra các folder con, tìm những folder có nội dung giống nhau
+            for (let j = 0; j < listDirChapter.length; j++) {
+                const formChapter = new FormData(); //Dữ liệu tạo chương truyện
+                const pathChild = path.join(pathFolder, listDirChapter[j]);
+                // Lấy trạng thái của dir
+                const dirrentChild = fs.statSync(pathChild);
+                if (dirrentChild.isDirectory()) {
+                    // Vào các folder con là các chương, kiểm tra phần title.txt xem có bị trùng lặp chương không
+                    const readFileTitle =Functions.readFile(path.join(pathChild, 'title.txt')).replace(/<[^>]*>/g, ''); //Loại bỏ các thẻ html
+                    const readFileText =Functions.readFile(path.join(pathChild, 'text.txt'));
+                    const pathFolderImage = path.join(pathChild, 'image')
+                    if (fs.existsSync(pathFolderImage)) {
+                        const listImages = fs.readdirSync(pathFolderImage);
+                        for (let k = 0; k < listImages.length; k++) {
+                            const pathImage = path.join(pathFolderImage, listImages[k])
+                            formChapter.append('images[]', fs.createReadStream(pathImage));
+                        }
+                    }
+                    formChapter.append('title', title);
+                    formChapter.append('chapter', readFileTitle);
+                    formChapter.append('text', readFileText);
+                    const responeChapter = await axios({
+                        url: 'http://localhost/wordpress/web_truyen/wp-json/v1/import_story_chapter',
+                        method: 'post',
+                        headers: formChapter.getHeaders(),
+                        data: formChapter
+                    });
+                    console.log(responeChapter.data.message);
+                }
+                
+            }
+        }
+
+        return res.send('upload truyện thành công');
     } catch (error) {
         return res.send('Lỗi: ' + error);
     }
+    // text-1.txt
+});
 
-})
 router.post('/test', async (req, res) => {
     try {
         const form = new FormData();

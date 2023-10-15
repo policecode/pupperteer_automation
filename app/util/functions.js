@@ -38,11 +38,13 @@ const dateToObject = (date) => {
  * Không điền thông tin file thì mặc định tạo folder
  */
 const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
-    if (!fs.existsSync( __pathFolder)) {
-      fs.mkdirSync(__pathFolder, {recursive: true})
+    const dirParent = path.join(__pathFolder);
+    if (!fs.existsSync(dirParent)) {
+      fs.mkdirSync(dirParent, {recursive: true})
     }
-    if (__fileName && (!fs.existsSync( __pathFolder + __fileName))) {
-      fs.writeFileSync(__pathFolder + __fileName, __text, 'utf-8');
+    const pathText = path.join(dirParent, __fileName);
+    if (__fileName && !fs.existsSync(pathText)) {
+      fs.writeFileSync(pathText, __text, 'utf-8');
     }
   }
 
@@ -70,4 +72,47 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
       return 0;
     }
   }
-module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder};
+
+  // Đọc file 
+  const readFile = (__path_dir) => {
+    const pathFile = path.join(__path_dir);
+    if (fs.existsSync(pathFile)) {
+      return fs.readFileSync(pathFile, {
+        encoding: 'utf-8'
+      });
+    }
+    return '';
+  }
+
+  // Lấy danh danh thư mục các chương và sắp xếp
+  const getFolderChapter = (__path_dir) => {
+    const tmp = fs.readdirSync(__path_dir);
+    const listChapter = [];
+    for (let index = 0; index < tmp.length; index++) {
+        let objNumber = tmp[index].match(/[0-9]+/);
+        if (objNumber) {
+            let number = Number(objNumber[0]);
+            listChapter.push({
+                index: number,
+                path: tmp[index]
+            });
+        }
+    }
+    
+    for (let i = 0; i < listChapter.length - 1; i++) {
+        for (let j = listChapter.length - 1; j > i; j--) {
+          if (listChapter[j].index < listChapter[j - 1].index) {
+            let t = listChapter[j];
+            listChapter[j] = listChapter[j - 1];
+            listChapter[j - 1] = t;
+          }
+        }
+      }
+    
+    const result = [];
+    for (let a = 0; a < listChapter.length; a++) {
+        result.push(listChapter[a].path)
+    }
+    return result;
+  }
+module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder, readFile, getFolderChapter};
