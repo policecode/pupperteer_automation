@@ -214,23 +214,34 @@ router.post('/crawl_tool_story', async (req, res) => {
 router.get('/path_folder_truyen', async (req, res) => {
     // Lấy danh sách các thư mục đã download về
     try {
-        const listPath = [];
         const pathFolder = path.join(__base+'public/download/');
-        const listDirStory = fs.readdirSync(pathFolder);
-        listDirStory.forEach(dir => {
-            const pathStory = path.join(pathFolder, dir);
-            const direntStory = fs.statSync(pathStory);
-            if (direntStory.isDirectory()) {
-                let totalChapter = Functions.totalFolder(pathStory);
-                const pathChildTitle = path.join(pathStory, 'title.txt');
-                const readFileChild = fs.readFileSync(pathChildTitle, {encoding: 'utf-8'});
-                listPath.push({
-                    folder: dir,
-                    name: readFileChild,
-                    total: totalChapter
-                })
-            }
-        });
+        let listPath = [];
+        var date = new Date();
+        let now = date.getTime();
+        let oldTime = Number(Functions.readFile(pathFolder + '/time.txt'));
+
+        if (fs.existsSync(pathFolder + '/table.txt') && ((now - oldTime) < 3600000)) {
+            listPath = JSON.parse(Functions.readFile(pathFolder + '/table.txt'));
+        } else {
+            let listDirStory = fs.readdirSync(pathFolder);
+            listDirStory.forEach(dir => {
+                const pathStory = path.join(pathFolder, dir);
+                const direntStory = fs.statSync(pathStory);
+                if (direntStory.isDirectory()) {
+                    let totalChapter = Functions.totalFolder(pathStory);
+                    const pathChildTitle = path.join(pathStory, 'title.txt');
+                    const readFileChild = Functions.readFile(pathChildTitle);
+                    listPath.push({
+                        folder: dir,
+                        name: readFileChild,
+                        total: totalChapter
+                    })
+                }
+            });
+            Functions.createFolderAnfFile(pathFolder, 'table.txt', JSON.stringify(listPath));
+            Functions.createFolderAnfFile(pathFolder, 'time.txt', date.getTime().toString());
+        }
+
         return res.status(200).send({records: listPath});
     } catch (e) {
         console.log('Lỗi getListFolderStory(): ' + e);
