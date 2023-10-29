@@ -54,7 +54,7 @@ router.post('/crawl_tool_story', async (req, res) => {
         try {
         let page = await browser.newPage();
             await HandlePage.gotoUrl(page, link); 
-            let listChapter = [];
+            
             /**
              * Tạo thư mục chứa truyện
              */
@@ -77,7 +77,16 @@ router.post('/crawl_tool_story', async (req, res) => {
                 });
                 return str;
            });
-    
+            // Image 
+            await page.waitForSelector('.col-truyen-main .info-holder .book', { visible: true });
+            const linkImage = await page.$eval('.col-truyen-main .info-holder .book', el => {
+                return el.querySelector('img').src;
+            });
+            // Status
+            await page.waitForSelector('.col-truyen-main .info-holder .info span', { visible: true });
+            const status = await page.$eval('.col-truyen-main .info-holder .info span', el => {
+                return el.innerText;
+            });
            
            // File thông tin truyện
             const dirStoryName = __base + 'public/download/'+RandomString.changeSlug(titleStory)+'/';
@@ -85,10 +94,15 @@ router.post('/crawl_tool_story', async (req, res) => {
             Functions.createFolderAnfFile(dirStoryName, 'description.txt', description);
             Functions.createFolderAnfFile(dirStoryName, 'author.txt', author);
             Functions.createFolderAnfFile(dirStoryName, 'category.txt', category);
-           
+            Functions.createFolderAnfFile(dirStoryName, 'status.txt', status);
+
+            const arrImage = linkImage.split('.');
+            const extAvatar = arrImage[arrImage.length - 1];
+            Functions.downloadFile(linkImage, dirStoryName, 'avatar.' + extAvatar);
             /**
              * Lấy danh sách các chương truyện
              */
+            let listChapter = [];
             while (true) {
                 const ChapterEl = await page.waitForSelector('#list-chapter', { visible: true });
                 const list = await ChapterEl.evaluate(el => {
@@ -380,23 +394,56 @@ router.post('/handle_upload_story', async (req, res) => {
 
 router.post('/test', async (req, res) => {
     try {
-        const form = new FormData();
-        const pathImage = path.join(__base+'public/image', 'pngtree-beauty-logo-design-png-image_6568470.png');
-        form.append('image', fs.createReadStream(pathImage));
-        const respone = await axios({
-            baseURL: 'http://localhost:8002',
-            url: '/api/v1/truyenfull/demo_call_api',
-            method: 'post',
-            headers: form.getHeaders(),
-            data: form
-          });
-        //   const respone = await axios({
-        //     method: 'get',
-        //     url: 'http://localhost:8002/api/v1/truyenfull/path_folder_truyen',
-        //   })
-        // console.log(axios.isCancel('something'));
-        return res.send(respone.data);
+        const browser = await __Start_Browser();
+        let page = await browser.newPage();
+        await HandlePage.gotoUrl(page, 'https://truyenfull.com/hao-mon-hon-uoc-lao-cong-cau-tha-thu.36190/'); 
+        let listChapter = [];
+        while (true) {
+            const ChapterEl = await page.waitForSelector('#list-chapter', { visible: true });
+            const list = await ChapterEl.evaluate(el => {
+                let listTmp = [];
+                const listElement = el.querySelectorAll('.list-chapter li');
+                listElement.forEach(elChapter => {
+                    const url = elChapter.querySelector('a').href;
+                    const chapterText = elChapter.querySelector('a').innerText;
+                    listTmp.push({chapterText, url});
+                });
+                return listTmp;
+            });
+
+            listChapter = listChapter.concat(list);
+
+            isPaging = await page.$('#list-chapter .pagination li.active + li');
+            if (isPaging) {
+                const isChoosePage = await isPaging.evaluate(el => {
+                    return !el.classList.contains('page-nav');
+                });
+                if (isChoosePage) {
+                    await page.click('#list-chapter .pagination li.active + li');
+                    await page.waitForTimeout(1000);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        await HandlePage.closeBrowser(browser);
+
+        let urlCheck = 'https://truyenfull.com/hao-mon-hon-uoc-lao-cong-cau-tha-thu/chuong-40.html';
+        for (let i = 0; i < listChapter.length; i++) {
+            // const isCheck = listChapter[i].url.trim().includes(urlCheck.trim());
+            // listChapter = listChapter.splice(i, 1)
+            // delele listChapter[i];
+            if (listChapter[i].url.includes(urlCheck)) {
+                listChapter = listChapter.slice(i + 1, listChapter.length - 1 );
+                break;
+            }
+        }
+
+        return res.send(listChapter);
     } catch (error) {
+        await HandlePage.closeBrowser(browser);
         return res.send('Lỗi: ' + error);
     }
 })

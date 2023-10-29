@@ -42,8 +42,8 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
     if (!fs.existsSync(dirParent)) {
       fs.mkdirSync(dirParent, {recursive: true})
     }
-    const pathText = path.join(dirParent, __fileName);
-    if (__fileName && !fs.existsSync(pathText)) {
+    if (__fileName) {
+      const pathText = path.join(dirParent, __fileName);
       fs.writeFileSync(pathText, __text, 'utf-8');
     }
   }
@@ -115,4 +115,21 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
     }
     return result;
   }
-module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder, readFile, getFolderChapter};
+
+  /**
+   * Tìm kiếm một file hoặc thư mục (DIR) trong thư mục
+   * - __path_dir: Thu mục tiến hành tìm kiếm
+   * - __file_key: Từ khóa tìm kiếm
+   * - resulit: Trả ra DIR đầu tiên phù hợp với kết quả
+   */
+const findFile = (__path_dir, __file_key) => {
+    let listDirStory = fs.readdirSync(__path_dir);
+    const result = listDirStory.find(el => {
+        return el.includes(__file_key);
+    })
+    if (result) {
+      return result;
+    }
+    return false;
+}
+module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder, readFile, getFolderChapter, findFile};
