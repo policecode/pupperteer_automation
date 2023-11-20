@@ -47,6 +47,23 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
       fs.writeFileSync(pathText, __text, 'utf-8');
     }
   }
+  /**
+   * Tạo file mới, nếu đã tồn tại thì sẽ xóa đi tạo lại
+   */
+  const createNewFile = (__pathFolder, __fileName) => {
+    const dirParent = path.join(__pathFolder);
+    if (!fs.existsSync(dirParent)) {
+      fs.mkdirSync(dirParent, {recursive: true})
+    }
+    const pathFile = path.join(dirParent, __fileName);
+    if (fs.existsSync(pathFile)) {
+        fs.unlinkSync(pathFile)
+        fs.openSync(pathFile, 'w');
+    } else {
+        fs.openSync(pathFile, 'w');
+    }
+    return pathFile;
+  }
 
   const downloadFile = (__url, __pathFolder, __fileName) => {
     if (!fs.existsSync( __pathFolder)) {
@@ -132,4 +149,4 @@ const findFile = (__path_dir, __file_key) => {
     }
     return false;
 }
-module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder, readFile, getFolderChapter, findFile};
+module.exports = {sleep, changeTimeSecond, dateToObject, createFolderAnfFile, downloadFile, totalFolder, readFile, getFolderChapter, findFile, createNewFile};
