@@ -48,7 +48,7 @@ const createFolderAnfFile = (__pathFolder, __fileName='', __text='') => {
     }
   }
   /**
-   * Tạo file mới, nếu đã tồn tại thì sẽ xóa đi tạo lại
+   * Tạo file mới, nếu đã tồn tại thì sẽ xóa đi tạo lại, trả về đường dẫn tuyệt đối của file
    */
   const createNewFile = (__pathFolder, __fileName) => {
     const dirParent = path.join(__pathFolder);
