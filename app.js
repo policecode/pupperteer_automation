@@ -32,7 +32,8 @@ app.locals.systemConfig = systemConfig;
 
 app.use(cors());
 // Setup Router
-app.use('/api/v1', require(__path_routers));
+
+app.use('/api/v1', require(__path_app + 'routes/'));
 app.get('/', (req, res) => {
 	res.json('tool-social');
 });
@@ -47,4 +48,4 @@ app.use(function (err, req, res, next) {
 
 const PORT = process.env.PORT || 8002;
 app.listen(PORT, () => console.log(`Serve running on port ${PORT}`));
-// module.exports = app;
+// module.exports = app;npm run dev
