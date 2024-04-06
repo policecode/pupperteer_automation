@@ -103,10 +103,6 @@ const https = require('https');
 //     console.log(err);
 // });
 
-// const string = `<div class="content_p fs-16 content_p_al">
-// <p class="noi_dung_online"> <img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-0.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-1.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-2.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-3.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-4.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-5.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-6.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-7.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-8.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-9.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-10.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-11.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-12.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-13.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-14.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-15.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-16.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-17.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-18.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-19.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-20.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-21.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-22.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-23.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-24.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-25.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-26.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-27.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-28.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-29.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-30.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-31.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-32.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-33.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-34.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-35.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-36.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-37.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-38.jpg" class="truyen-tranh" alt=""><img decoding="async" src="https://file.nhasachmienphi.com/jpg/nhasachmienphi-sieu-quay-teppi-332605-39.jpg" class="truyen-tranh" alt=""> </p>
-// </div>`
-
 // let rexgex = /<img.*?>/g;
 // // var myArray = /<img.*?>/g.exec(string);
 // arrImg = string.match(rexgex);
@@ -121,6 +117,64 @@ const https = require('https');
 //     });
 // }
 
-if (!fs.existsSync( './public/nguyen-hoang-dat/thu-muc-de-test/')) {
-    fs.mkdirSync('./public/nguyen-hoang-dat/thu-muc-de-test/', {recursive: true});
-  }
+// if (!fs.existsSync( './public/nguyen-hoang-dat/thu-muc-de-test/')) {
+//     fs.mkdirSync('./public/nguyen-hoang-dat/thu-muc-de-test/', {recursive: true});
+//   }
+
+// Requiring module 
+
+// Requiring module 
+const reader = require('xlsx') 
+// Reading our test file 
+if (fs.existsSync('./test.xlsx')) {
+    fs.unlinkSync('./test.xlsx')
+    fs.openSync('./test.xlsx', 'w');
+} else {
+    fs.openSync('./test.xlsx', 'w');
+}
+const file = reader.readFile('./test.xlsx') 
+  
+// Sample data set 
+let student_data = [{ 
+    Student:'Nikhil', 
+    Age:22, 
+    Branch:'ISE', 
+    Marks: 70 
+}, 
+{ 
+    Student:'Amitha', 
+    Age:21, 
+    Branch:'EC', 
+    Marks:80 
+},
+{ 
+    Student:'Nikhil', 
+    Age:22, 
+    Branch:'ISE', 
+    Marks: 70 
+}, 
+{ 
+    Student:'Amitha', 
+    Age:21, 
+    Branch:'EC', 
+    Marks:80 
+},
+{ 
+    Student:'Nikhil', 
+    Age:22, 
+    Branch:'ISE', 
+    Marks: 70 
+}, 
+{ 
+    Student:'Amitha', 
+    Age:21, 
+    Branch:'EC', 
+    Marks:80 
+}] 
+  
+const ws = reader.utils.json_to_sheet(student_data) 
+  
+reader.utils.book_append_sheet(file,ws,"luu tru dai han") 
+  
+// Writing to our file 
+reader.writeFile(file,'./test.xlsx') 
