@@ -391,6 +391,53 @@ class HandleFacebook {
             }
         }
     }
+
+    /**
+     * Xử lý từng bài viết cụ thể: image (ảnh nằm trong một bài viết)
+     * .x1fqkajt.x1aj7aux.x1axty5n.x1uuop16
+     */
+    static async handlePostImage(page, post_link, list_comment, shareStatus) {
+        for (let index = 0; index < post_link.length; index++) {
+            const comment = list_comment[Math.floor(Math.random() * list_comment.length)];
+            await HandlePage.gotoUrl(page, post_link[index]);
+            // Load trang
+            await page.waitForSelector('.x78zum5.xdt5ytf.x1n2onr6.x1ja2u2z', { visible: true });
+            let btnLikePage = await page.$('.x1fqkajt.x1aj7aux.x1axty5n.x1uuop16 div[aria-label="Thích"]', { visible: true });
+            let btnComment = await page.waitForSelector('form .xi81zsa.xo1l8bm.xlyipyv.xuxw1ft.x49crj4.x1ed109x.xdl72j9.x1iyjqo2.xs83m0k.x6prxxf.x6ikm8r.x10wlt62.x1y1aw1k.xn6708d.xwib8y2.x1ye3gou', { visible: true });
+            await page.waitForSelector('.x9f619.x1n2onr6.x1ja2u2z.x78zum5.x1r8uery.x1iyjqo2.xs83m0k.xeuugli.xl56j7k.x6s0dn4.xozqiw3.x1q0g3np.xn6708d.x1ye3gou.xexx8yu.xcud41i.x139jcc6.x4cne27.xifccgj.xn3w4p2.xuxw1ft', { visible: true });
+            let btnSharePage = await page.$$('.x9f619.x1n2onr6.x1ja2u2z.x78zum5.x1r8uery.x1iyjqo2.xs83m0k.xeuugli.xl56j7k.x6s0dn4.xozqiw3.x1q0g3np.xn6708d.x1ye3gou.xexx8yu.xcud41i.x139jcc6.x4cne27.xifccgj.xn3w4p2.xuxw1ft', { visible: true })[2];
+            // Like bài viết
+            if (btnLikePage) {
+                await btnLikePage.hover();
+                await page.waitForTimeout(1000);
+                await btnLikePage.click();
+            }
+            await page.waitForTimeout(3000);
+
+            // Comment bài viết
+            if (comment) {
+                await btnComment.hover();
+                await page.waitForTimeout(1000);
+                await btnComment.click();
+                
+                await page.type('.x78zum5.xdt5ytf.x1n2onr6.x9otpla form .xi81zsa.xo1l8bm.xlyipyv.xuxw1ft.x49crj4.x1ed109x.xdl72j9.x1iyjqo2.xs83m0k.x6prxxf.x6ikm8r.x10wlt62.x1y1aw1k.xn6708d.xwib8y2.x1ye3gou', comment, {delay: 100});
+                await page.waitForTimeout(2000);
+                HandlePage.setKeyboard(page, 'Enter');
+                await page.waitForTimeout(2000);
+            }
+            // share bài viết lên trang cá nhân
+            if (shareStatus) {
+               if (btnSharePage) {
+                    await btnSharePage.click();
+                    await page.waitForSelector('.xt7dq6l.x1a2a7pz.x6ikm8r.x10wlt62.x1n2onr6.x14atkfc', { visible: true });
+                    await page.waitForTimeout(2000);
+                    let listShare = await page.$$('.xt7dq6l.x1a2a7pz.x6ikm8r.x10wlt62.x1n2onr6.x14atkfc .x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xa49m3k.xqeqjp1.x2hbi6w.x13fuv20.xu3j5b3.x1q0q8m5.x26u7qi.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xdl72j9.x2lah0s.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.x2lwn1j.xeuugli.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.x1lq5wgf.xgqcy7u.x30kzoy.x9jhf4c.x1lliihq', { visible: true });
+                    await listShare[0].click();
+                }
+                await page.waitForTimeout(3000);
+            }
+        }
+    }
 }
 
 module.exports = HandleFacebook;

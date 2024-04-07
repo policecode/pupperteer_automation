@@ -108,7 +108,7 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login_google', async (req, res) => {
-    let groupName = 'test_pupperteer';
+    let groupName = req.body.group_name ? req.body.group_name : "test_pupperteer";
     const groups = await axios.get(__API_GPM + "profiles");
     const profiles = groups.data.filter(o => o.group_name === groupName);
     const tableDatabase = new JsonDatabase('gmail');

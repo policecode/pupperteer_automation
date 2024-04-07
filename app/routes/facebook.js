@@ -287,6 +287,9 @@ router.post('/like_share_comment_post', async (req, res) => {
                 if (post == 'video') {
                     await HandleFacebook.handlePostVideo(page, post_link, list_comment, shareStatus); 
                 }
+                if (post == 'image') {
+                    await HandleFacebook.handlePostImage(page, post_link, list_comment, shareStatus); 
+                }
             } else {
                 console.log(isLoginFacebook + ' ' + profile.name);
             }
